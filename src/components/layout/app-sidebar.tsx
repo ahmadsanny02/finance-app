@@ -23,7 +23,7 @@ const sidebarItem = [
     {
         label: "Transactions",
         icon: <BanknoteIcon />,
-        href: "/dashboard/transactions",
+        href: "/dashboard/transaction",
     },
 ];
 
