@@ -6,6 +6,21 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Table,
     TableBody,
@@ -18,6 +33,7 @@ import {
 import { getTransactions } from "@/features/transaction/action";
 import { cn, convertToIDR } from "@/lib/utils";
 import { PencilIcon, Trash2Icon, TrashIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 
 const TABLE_HEADER = [
@@ -50,6 +66,18 @@ export default function TransactionTable({
     isLoading: boolean;
     refetch: () => void;
 }) {
+    const [localSearch, setLocalSearch] = useState(search);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localSearch !== search) {
+                setSearch(localSearch);
+                setPage(1);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    });
     return (
         <Fragment>
             <Card className="w-full gap-2">
@@ -57,6 +85,14 @@ export default function TransactionTable({
                     <div className="">
                         <CardTitle>Recent Transaction</CardTitle>
                         <CardDescription>Your latest financial activities</CardDescription>
+                    </div>
+                    <div className="">
+                        <Input
+                            placeholder="Search..."
+                            value={localSearch}
+                            onChange={(e) => setLocalSearch(e.target.value)}
+                            className="w-full"
+                        />
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -118,6 +154,55 @@ export default function TransactionTable({
                             <TableCaption>Transaction not found</TableCaption>
                         )}
                     </Table>
+                    <div className="flex justify-between items-center mt-4">
+                        <div className="flex items-center gap-2">
+                            <div className="text-sm text-muted-foreground">Rows per page</div>
+                            <Select
+                                value={limit.toString()}
+                                onValueChange={(value) => {
+                                    setLimit(Number(value));
+                                    setPage(1);
+                                }}
+                            >
+                                <SelectTrigger className="w-20">
+                                    <SelectValue placeholder={limit.toString()} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {[1, 10, 20, 50, 100].map((size) => (
+                                        <SelectItem key={`limit-${size}`} value={size.toString()}>
+                                            {size}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        {transactions?.totalPages && transactions?.totalPages > 1 ? (
+                            <Pagination className="mx-0 w-auto">
+                                <PaginationContent>
+                                    <PaginationItem className="">
+                                        <PaginationPrevious
+                                            onClick={() =>
+                                                page === 1
+                                                    ? setPage(Number(transactions?.totalPages))
+                                                    : setPage(page - 1)
+                                            }
+                                        />
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            onClick={() =>
+                                                page === Number(transactions?.totalPages)
+                                                    ? setPage(1)
+                                                    : setPage(page + 1)
+                                            }
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        ) : (
+                            ""
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         </Fragment>
