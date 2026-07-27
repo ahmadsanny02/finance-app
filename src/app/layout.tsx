@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import QueryProvider from "@/providers/query-client";
+import { Toaster } from "@/components/ui/sonner";
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -36,6 +37,7 @@ export default function RootLayout({
         <QueryProvider>
           <TooltipProvider>
             {children}
+            <Toaster />
           </TooltipProvider>
         </QueryProvider>
       </body>
