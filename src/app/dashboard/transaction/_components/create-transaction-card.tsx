@@ -60,22 +60,24 @@ export default function CreateTransactionCard({
         mutationFn: (data: z.infer<typeof formSchema>) => {
             const formatedData = {
                 ...data,
-                amount: parseFloat(data.amount)
-            }
-            return createTransaction(formatedData)
+                amount: parseFloat(data.amount),
+            };
+            return createTransaction(formatedData);
         },
         onSuccess: () => {
-            form.reset()
-            refetch()
-            toast.success("Transaction created successfully")
+            form.reset();
+            refetch();
+            toast.success("Transaction created successfully");
         },
         onError: (error) => {
-            toast.error(error instanceof Error ? error.message : "Failed to create transaction")
-        }
-    })
+            toast.error(
+                error instanceof Error ? error.message : "Failed to create transaction",
+            );
+        },
+    });
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
-        mutate(data)
+        mutate(data);
     };
 
     return (
@@ -194,7 +196,11 @@ export default function CreateTransactionCard({
                             )}
                         />
 
-                        <Button size="lg" type="submit" disabled={!form.formState.isValid || isPending}>
+                        <Button
+                            size="lg"
+                            type="submit"
+                            disabled={!form.formState.isValid || isPending}
+                        >
                             {isPending ? "Creating" : "Create Transaction"}
                         </Button>
                     </FieldGroup>
