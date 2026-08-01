@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { Transaction } from "@/app/types/transaction";
 import { createClient } from "@/lib/supabase/server";
@@ -26,46 +26,75 @@ export async function getBalanceSummary() {
 }
 
 export async function getTransactions(params?: {
-    limit?: number
-    page?: number
-    search?: string
+    limit?: number;
+    page?: number;
+    search?: string;
 }) {
-    const { limit = 10, page = 1, search } = params || {}
+    const { limit = 10, page = 1, search } = params || {};
 
-    const supabase = await createClient()
+    const supabase = await createClient();
 
-    let query = supabase.from("transactions").select("id, amount, type, description, date, category", {
-        count: "exact"
-    })
+    let query = supabase
+        .from("transactions")
+        .select("id, amount, type, description, date, category", {
+            count: "exact",
+        })
+        .order("date", { ascending: false });
 
     if (search) {
-        query = query.ilike("description", `%${search}%`)
+        query = query.ilike("description", `%${search}%`);
     }
 
-    const from = (page - 1) * limit
-    const to = from + limit - 1
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    const { data, error, count } = await query.range(from, to)
+    const { data, error, count } = await query.range(from, to);
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error(error.message);
 
-    const totalData = count || 0
+    const totalData = count || 0;
 
     return {
         data,
         totalData,
-        totalPages: Math.ceil(totalData / limit)
-    }
-
+        totalPages: Math.ceil(totalData / limit),
+    };
 }
 
 export async function createTransaction(
-    payload: Omit<Transaction, "id" | "user_id" | "embedding">
+    payload: Omit<Transaction, "id" | "user_id" | "embedding">,
 ) {
-    const supabase = await createClient()
-    const { data, error } = await supabase.from("transactions").insert(payload)
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("transactions").insert(payload);
 
-    if (error) throw new Error(error.message)
+    if (error) throw new Error(error.message);
 
-    return data
+    return data;
+}
+
+export async function deleteTransaction(id: string) {
+    const supabase = await createClient();
+    const { error, success } = await supabase
+        .from("transactions")
+        .delete()
+        .eq("id", id);
+
+    if (error) throw new Error(error.message);
+
+    return success;
+}
+
+export async function updateTransaction(
+    id: string,
+    payload: Omit<Transaction, "id" | "user_id" | "embedding">,
+) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("transactions")
+        .update(payload)
+        .eq("id", id);
+
+    if (error) throw new Error(error.message);
+
+    return data;
 }
