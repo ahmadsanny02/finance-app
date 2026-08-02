@@ -187,16 +187,28 @@ export default function UpdateTransactionDialog({
                                                 <SelectValue placeholder="Select category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Food & Drink">
-                                                    Food & Drink
-                                                </SelectItem>
-                                                <SelectItem value="Transportation">
-                                                    Transportation
+                                                <SelectItem value="Education & Development">
+                                                    Education & Development
                                                 </SelectItem>
                                                 <SelectItem value="Entertainment">
                                                     Entertainment
                                                 </SelectItem>
+                                                <SelectItem value="Event">Event</SelectItem>
+                                                <SelectItem value="Food & Drink">
+                                                    Food & Drink
+                                                </SelectItem>
+                                                <SelectItem value="Hobby">Hobby</SelectItem>
+                                                <SelectItem value="Internet">Internet</SelectItem>
+                                                <SelectItem value="Life">Life</SelectItem>
+                                                <SelectItem value="Missing">Missing</SelectItem>
+                                                <SelectItem value="Other">Other</SelectItem>
+                                                <SelectItem value="Refund">Refund</SelectItem>
                                                 <SelectItem value="Salary">Salary</SelectItem>
+                                                <SelectItem value="Shopping">Shopping</SelectItem>
+                                                <SelectItem value="Software">Software</SelectItem>
+                                                <SelectItem value="Transportation">
+                                                    Transportation
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                         {fieldState.invalid && (
