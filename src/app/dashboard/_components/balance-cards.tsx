@@ -20,17 +20,17 @@ export function BalanceCards() {
 
     if (error) {
         return (
-            <div className="w-full p-4 border border-destructive/50 text-destructive rounded-lg bg-destructive/10">
+            <div className="w-full p-4 border rounded-lg border-destructive/50 text-destructive bg-destructive/10">
                 Failed to get balance
             </div>
         );
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex gap-2 items-center text-primary">
+                    <CardTitle className="flex items-center gap-2 text-primary">
                         <WalletIcon className="size-4" />
                         Saving
                     </CardTitle>
@@ -42,7 +42,7 @@ export function BalanceCards() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex gap-2 items-center text-primary">
+                    <CardTitle className="flex items-center gap-2 text-primary">
                         <TrendingUpIcon className="size-4" />
                         Incomes
                     </CardTitle>
@@ -54,7 +54,7 @@ export function BalanceCards() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex gap-2 items-center text-primary">
+                    <CardTitle className="flex items-center gap-2 text-primary">
                         <TrendingDownIcon className="size-4" />
                         Expenses
                     </CardTitle>
