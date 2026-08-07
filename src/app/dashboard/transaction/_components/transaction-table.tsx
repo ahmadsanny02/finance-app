@@ -89,7 +89,7 @@ export default function TransactionTable({
     return (
         <Fragment>
             <Card className="w-full gap-2">
-                <CardHeader className="flex flex-col md:flex-row justify-between gap-2 md:items-center">
+                <CardHeader className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
                     <div className="">
                         <CardTitle>Recent Transaction</CardTitle>
                         <CardDescription>Your latest financial activities</CardDescription>
@@ -172,7 +172,7 @@ export default function TransactionTable({
                             <TableCaption>Transaction not found</TableCaption>
                         )}
                     </Table>
-                    <div className="flex justify-between items-center mt-4">
+                    <div className="flex items-center justify-between mt-4">
                         <div className="flex items-center gap-2">
                             <div className="text-sm text-muted-foreground">Rows per page</div>
                             <Select
@@ -195,22 +195,24 @@ export default function TransactionTable({
                             </Select>
                         </div>
                         {transactions?.totalPages && transactions?.totalPages > 1 ? (
-                            <Pagination className="mx-0 w-auto">
+                            <Pagination className="w-auto mx-0">
                                 <PaginationContent>
                                     <PaginationItem className="">
                                         <PaginationPrevious
+                                            className={`${page === 1 ? "opacity-50 pointer-events-none" : ""}`}
                                             onClick={() =>
                                                 page === 1
-                                                    ? setPage(Number(transactions?.totalPages))
+                                                    ? ""
                                                     : setPage(page - 1)
                                             }
                                         />
                                     </PaginationItem>
                                     <PaginationItem>
                                         <PaginationNext
+                                            className={`${page === transactions?.totalPages ? "opacity-50 pointer-events-none" : ""}`}
                                             onClick={() =>
                                                 page === Number(transactions?.totalPages)
-                                                    ? setPage(1)
+                                                    ? ""
                                                     : setPage(page + 1)
                                             }
                                         />
