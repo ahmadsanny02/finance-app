@@ -7,10 +7,10 @@ const ai = new GoogleGenAI({
     apiKey: ENVIRONMENT.googleGenAIKey,
 });
 
-export async function handleChat() {
+export async function handleChat(message: string) {
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: "Who are you?",
+        contents: message,
         config: {},
     });
 
