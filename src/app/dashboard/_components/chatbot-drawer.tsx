@@ -9,7 +9,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { handleChat, handleChatWithThinking } from "@/features/ai/chat";
+import { handleChat } from "@/features/ai/chat";
 import { cn } from "@/lib/utils";
 import { BotIcon, ChevronDownIcon, EllipsisIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -34,36 +34,32 @@ export default function ChatbotDrawer() {
     }[]
   >([]);
 
-  const { mutate: handleChatMutation, isPending } = useMutation({
-    mutationFn: handleChat,
-    onSuccess: (response) => {
-      const botMessage = {
-        role: "model",
-        parts: [{ text: response || "Something is wrong!" }],
-      };
-      setConversation((prev) => [...prev, botMessage]);
-    },
-    onError: (error) => {
-      const bothMessage = {
-        role: "model",
-        parts: [{ text: `Something is wrong!: ${error.message}` }],
-      };
-      setConversation((prev) => [...prev, bothMessage]);
-    },
-  });
+  const [isThinking, setIsThinking] = useState(false)
 
-  const {
-    mutate: handleChatWithThinkingMutation,
-    isPending: IsPendingChatWithThinking,
-  } = useMutation({
-    mutationFn: handleChatWithThinking,
+  const { mutate: handleChatMutation, isPending } = useMutation({
+    mutationFn: ({
+      message,
+      isThinking,
+    }: {
+      message: string;
+      isThinking: boolean;
+    }) => handleChat(message, isThinking),
     onSuccess: (response) => {
+      let parts: {
+        text: string;
+        thought?: boolean;
+      }[] = [];
+
+      if (response?.thought !== "") {
+        parts = [
+          ...parts,
+          { thought: true, text: response?.thought || "Something is wrong!" },
+        ];
+      }
+
       const botMessage = {
         role: "model",
-        parts: [
-          { thought: true, text: response?.thought || "Something is wrong!" },
-          { text: response?.answer || "Something is wrong!" },
-        ],
+        parts: [...parts, { text: response?.answer || "Something is wrong!" }],
       };
       setConversation((prev) => [...prev, botMessage]);
     },
@@ -82,7 +78,7 @@ export default function ChatbotDrawer() {
       parts: [{ text: message }],
     };
     setConversation((prev) => [...prev, newMessage]);
-    handleChatWithThinkingMutation(message);
+    handleChatMutation({ message, isThinking });
   }
 
   useEffect(() => {
@@ -176,7 +172,7 @@ export default function ChatbotDrawer() {
                   </div>
                 </div>
               ))}
-              {IsPendingChatWithThinking && (
+              {isPending && (
                 <div className="flex items-center animate-pulse">
                   <EllipsisIcon className="size-8 text-primary/50" />
                 </div>
@@ -190,7 +186,7 @@ export default function ChatbotDrawer() {
           )}
         </div>
         <DrawerFooter>
-          <ChatbotTextarea sendMessage={sendMessage} />
+          <ChatbotTextarea isThinking={isThinking} setIsThinking={setIsThinking} sendMessage={sendMessage} />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
