@@ -60,6 +60,7 @@ export async function* handleChatStreaming(
                 // thinkingLevel: isThinking ? ThinkingLevel.HIGH : ThinkingLevel.MINIMAL,
                 // thinkingBudget: isThinking ? -1 : 0
             },
+            systemInstruction: "Bot galak, kasar, tidak suka basa-basi"
         },
     });
 
