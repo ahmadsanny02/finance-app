@@ -1,5 +1,6 @@
 "use server";
 
+import { Conversation } from "@/app/types/ai";
 import { ENVIRONMENT } from "@/config/environment";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 
@@ -7,10 +8,13 @@ const ai = new GoogleGenAI({
     apiKey: ENVIRONMENT.googleGenAIKey,
 });
 
-export async function handleChat(message: string, isThinking: boolean) {
+export async function handleChat(
+    conversation: Conversation[],
+    isThinking: boolean,
+) {
     const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: message,
+        contents: [...conversation],
         config: {
             thinkingConfig: {
                 includeThoughts: isThinking,
@@ -27,7 +31,6 @@ export async function handleChat(message: string, isThinking: boolean) {
         const parts = response.candidates?.[0].content?.parts;
         if (!parts) return;
 
-
         for (const part of parts) {
             if (!part.text) {
                 continue;
@@ -38,38 +41,40 @@ export async function handleChat(message: string, isThinking: boolean) {
             }
         }
     } else {
-        result.answer = `${response.text}`
+        result.answer = `${response.text}`;
     }
 
-    return result
+    return result;
 }
 
-
-export async function* handleChatStreaming(message: string, isThinking: boolean) {
+export async function* handleChatStreaming(
+    conversation: Conversation[],
+    isThinking: boolean,
+) {
     const response = await ai.models.generateContentStream({
         model: "gemini-3-flash-preview",
-        contents: message,
+        contents: [...conversation],
         config: {
             thinkingConfig: {
                 includeThoughts: isThinking,
                 // thinkingLevel: isThinking ? ThinkingLevel.HIGH : ThinkingLevel.MINIMAL,
                 // thinkingBudget: isThinking ? -1 : 0
-            }
-        }
-    })
+            },
+        },
+    });
 
     if (isThinking) {
         for await (const chunk of response) {
-            const parts = chunk.candidates?.[0].content?.parts
+            const parts = chunk.candidates?.[0].content?.parts;
 
             if (parts) {
                 for (const part of parts) {
                     if (!part.text) {
-                        continue
+                        continue;
                     } else if (part.thought) {
-                        yield `[thought]${part.text}`
+                        yield `[thought]${part.text}`;
                     } else {
-                        yield part.text
+                        yield part.text;
                     }
                 }
             }
@@ -77,7 +82,7 @@ export async function* handleChatStreaming(message: string, isThinking: boolean)
     } else {
         for await (const chunk of response) {
             if (chunk.text) {
-                yield chunk.text
+                yield chunk.text;
             }
         }
     }
