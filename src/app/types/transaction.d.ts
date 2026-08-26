@@ -5,6 +5,6 @@ export type Transaction = {
     category: string;
     amount: number;
     type: "income" | "expense";
-    user_id: string | null;
-    embedding: number[] | null;
+    user_id?: string | null;
+    embedding?: number[] | null;
 };
