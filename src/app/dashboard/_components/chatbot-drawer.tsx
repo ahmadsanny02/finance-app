@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -75,7 +75,11 @@ export default function ChatbotDrawer() {
           { role: "model", parts: [{ thought: true, text: "" }, { text: "" }] },
         ]);
 
-        const response = await handleChatStreaming(conversation, isThinking);
+        const response = await handleChatStreaming(
+          conversation,
+          isThinking,
+          "personal",
+        );
 
         for await (const chunk of response) {
           setConversation((prev) => {
@@ -111,7 +115,11 @@ export default function ChatbotDrawer() {
           { role: "model", parts: [{ text: "" }] },
         ]);
 
-        const response = await handleChatStreaming(conversation, isThinking);
+        const response = await handleChatStreaming(
+          conversation,
+          isThinking,
+          "personal",
+        );
 
         for await (const chunk of response) {
           setConversation((prev) => {
