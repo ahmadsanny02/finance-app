@@ -34,12 +34,7 @@ export default function WizardInput({ refetch }: { refetch: () => void }) {
                 throw new Error("Failed to process AI input");
             }
 
-            const embedding = await generateEmbedding(JSON.stringify(aiResponse))
-            console.log(embedding)
-
-            return;
-
-            // return createTransaction(aiResponse);
+            return createTransaction(aiResponse);
         },
         onSuccess: () => {
             toast.success("Transaction created successfully!");
@@ -47,9 +42,11 @@ export default function WizardInput({ refetch }: { refetch: () => void }) {
             form.reset();
         },
         onError: (error) => {
-            toast.error(error instanceof Error)
-                ? error.message
-                : "Failed to process your request";
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Failed to process your request",
+            );
         },
     });
 
