@@ -31,41 +31,7 @@ export default function ChatbotDrawer() {
 
   const [isThinking, setIsThinking] = useState(false);
 
-  // const { mutate: handleChatMutation, isPending } = useMutation({
-  //   mutationFn: ({
-  //
-  //     isThinking,
-  //   }: {
-  //
-  //     isThinking: boolean;
-  //   }) => handleChat(conversation, isThinking),
-  //   onSuccess: (response) => {
-  //     let parts: {
-  //       text: string;
-  //       thought?: boolean;
-  //     }[] = [];
-
-  //     if (response?.thought !== "") {
-  //       parts = [
-  //         ...parts,
-  //         { thought: true, text: response?.thought || "Something is wrong!" },
-  //       ];
-  //     }
-
-  //     const botMessage = {
-  //       role: "model",
-  //       parts: [...parts, { text: response?.answer || "Something is wrong!" }],
-  //     };
-  //     setConversation((prev) => [...prev, botMessage]);
-  //   },
-  //   onError: (error) => {
-  //     const bothMessage = {
-  //       role: "model",
-  //       parts: [{ text: `Something is wrong!: ${error.message}` }],
-  //     };
-  //     setConversation((prev) => [...prev, bothMessage]);
-  //   },
-  // });
+  const [mode, setMode] = useState<"general" | "personal">("general")
 
   const { mutate: handleChatMutation, isPending } = useMutation({
     mutationFn: async ({ isThinking }: { isThinking: boolean }) => {
@@ -78,7 +44,7 @@ export default function ChatbotDrawer() {
         const response = await handleChatStreaming(
           conversation,
           isThinking,
-          "personal",
+          mode,
         );
 
         for await (const chunk of response) {
@@ -118,7 +84,7 @@ export default function ChatbotDrawer() {
         const response = await handleChatStreaming(
           conversation,
           isThinking,
-          "personal",
+          mode,
         );
 
         for await (const chunk of response) {
@@ -269,6 +235,8 @@ export default function ChatbotDrawer() {
             isThinking={isThinking}
             setIsThinking={setIsThinking}
             sendMessage={sendMessage}
+            mode={mode}
+            setMode={setMode}
           />
         </DrawerFooter>
       </DrawerContent>
