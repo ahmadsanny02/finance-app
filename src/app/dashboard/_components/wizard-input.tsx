@@ -3,13 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
-import { handleWizardInput } from "@/features/ai/chat";
-import { generateEmbedding } from "@/features/ai/embedding";
-import { createTransaction } from "@/features/transaction/action";
+import { handleWizardInput, handleWizardTools } from "@/features/ai/wizard";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon, SendIcon, SparkleIcon } from "lucide-react";
-import { Dispatch, KeyboardEvent } from "react";
+import { KeyboardEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -27,15 +25,7 @@ export default function WizardInput({ refetch }: { refetch: () => void }) {
     });
 
     const { mutate, isPending } = useMutation({
-        mutationFn: async (message: string) => {
-            const aiResponse = await handleWizardInput(message);
-
-            if (!aiResponse) {
-                throw new Error("Failed to process AI input");
-            }
-
-            return createTransaction(aiResponse);
-        },
+        mutationFn: handleWizardTools,
         onSuccess: () => {
             toast.success("Transaction created successfully!");
             refetch();
