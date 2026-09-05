@@ -40,7 +40,8 @@ export async function getTransactions(params?: {
         .select("id, amount, type, description, date, category", {
             count: "exact",
         })
-        .order("date", { ascending: false });
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: true });
 
     if (search) {
         query = query.ilike("description", `%${search}%`);
@@ -83,8 +84,8 @@ export async function createTransaction(
 ) {
     const supabase = await createClient();
     const payload: Record<string, unknown> = { ...transaction };
-    const embeddingVector = await handleEmbedding(transaction)
-    if (embeddingVector) payload.embedding = embeddingVector
+    const embeddingVector = await handleEmbedding(transaction);
+    if (embeddingVector) payload.embedding = embeddingVector;
     const { data, error } = await supabase.from("transactions").insert(payload);
 
     if (error) throw new Error(error.message);
@@ -111,8 +112,8 @@ export async function updateTransaction(
     const supabase = await createClient();
     const payload: Record<string, unknown> = { ...transaction };
 
-    const embeddingVector = await handleEmbedding(transaction)
-    if (embeddingVector) payload.embedding = embeddingVector
+    const embeddingVector = await handleEmbedding(transaction);
+    if (embeddingVector) payload.embedding = embeddingVector;
 
     const { data, error } = await supabase
         .from("transactions")
