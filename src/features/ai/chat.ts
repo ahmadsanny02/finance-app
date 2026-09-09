@@ -6,7 +6,7 @@ import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { createAI } from "./instance";
 import z from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { generateEmbedding } from "./embedding";
+import { findEmbedding, generateEmbedding } from "./embedding";
 import { Transaction } from "@/app/types/transaction";
 
 export async function handleChat(
@@ -135,19 +135,7 @@ async function personalizedChat(
 ) {
     const ai = createAI();
 
-    const supabase = await createClient();
-
-    const queryEmbedding = await generateEmbedding(query);
-
-    const { data, error } = await supabase.rpc("match_transactions", {
-        query_embedding: queryEmbedding,
-        match_threshold: 0.3,
-        match_count: 15,
-    });
-
-    if (error) {
-        throw new Error("Failed to perform vector search");
-    }
+    const data = await findEmbedding(query);
 
     let contextData = "";
 
@@ -246,4 +234,3 @@ export async function* handleChatStreaming(
         }
     }
 }
-
