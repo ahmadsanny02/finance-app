@@ -179,14 +179,21 @@
     @apply border-t-0! border-b! pt-4;
   }
 
+  ol {
+    @apply w-full space-y-1 text-wrap list-decimal;
+    li {
+      @apply list-inside text-wrap;
+    }
+  }
+
   ul {
-    @apply w-full space-y-1 text-wrap;
+    @apply w-full space-y-1 text-wrap list-disc;
 
     li {
-      @apply list-disc list-inside text-wrap;
+      @apply list-inside text-wrap;
 
       ul {
-        list-style-type: circle;
+        list-style-type: circle !important;
 
         li {
           @apply list-inside text-wrap ml-2;
