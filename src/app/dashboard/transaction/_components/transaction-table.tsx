@@ -200,11 +200,7 @@ export default function TransactionTable({
                                     <PaginationItem className="">
                                         <PaginationPrevious
                                             className={`${page === 1 ? "opacity-50 pointer-events-none" : ""}`}
-                                            onClick={() =>
-                                                page === 1
-                                                    ? ""
-                                                    : setPage(page - 1)
-                                            }
+                                            onClick={() => (page === 1 ? "" : setPage(page - 1))}
                                         />
                                     </PaginationItem>
                                     <PaginationItem>
