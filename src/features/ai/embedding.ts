@@ -29,8 +29,11 @@ export async function generateEmbedding(contents: string) {
     }
 }
 
-export async function findEmbedding(query: string, match_threshold?: number, match_count?: number) {
-
+export async function findEmbedding(
+    query: string,
+    match_threshold?: number,
+    match_count?: number,
+) {
     const supabase = await createClient();
 
     const queryEmbedding = await generateEmbedding(query);
@@ -45,5 +48,5 @@ export async function findEmbedding(query: string, match_threshold?: number, mat
         throw new Error("Failed to perform vector search");
     }
 
-    return data
+    return data;
 }
