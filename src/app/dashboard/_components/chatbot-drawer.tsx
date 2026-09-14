@@ -11,7 +11,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { handleChat, handleChatStreaming } from "@/features/ai/chat";
+import { handleChatStreaming } from "@/features/ai/chat";
 import { cn } from "@/lib/utils";
 import { BotIcon, ChevronDownIcon, EllipsisIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -31,7 +31,7 @@ export default function ChatbotDrawer() {
 
   const [isThinking, setIsThinking] = useState(false);
 
-  const [mode, setMode] = useState<"general" | "personal">("general")
+  const [mode, setMode] = useState<"general" | "personal">("general");
 
   const { mutate: handleChatMutation, isPending } = useMutation({
     mutationFn: async ({ isThinking }: { isThinking: boolean }) => {
