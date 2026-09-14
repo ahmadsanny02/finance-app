@@ -48,8 +48,7 @@ export const transactionProperties = {
 
 export const getTransactionDeclaration: FunctionDeclaration = {
     name: "get_transaction",
-    description:
-        "Get all transactions from the user's financial history.",
+    description: "Get all transactions from the user's financial history.",
     parameters: {
         type: Type.OBJECT,
         properties: transactionProperties,
