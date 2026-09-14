@@ -147,9 +147,7 @@ export default function CreateTransactionCard({
                                                 Entertainment
                                             </SelectItem>
                                             <SelectItem value="Event">Event</SelectItem>
-                                            <SelectItem value="Food & Drink">
-                                                Food & Drink
-                                            </SelectItem>
+                                            <SelectItem value="Food & Drink">Food & Drink</SelectItem>
                                             <SelectItem value="Hobby">Hobby</SelectItem>
                                             <SelectItem value="Internet">Internet</SelectItem>
                                             <SelectItem value="Life">Life</SelectItem>
