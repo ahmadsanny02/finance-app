@@ -131,7 +131,7 @@ export async function handleWizardTools(message: string) {
     ];
 
     const ai = createAI();
-    let running = true
+    let running = true;
 
     while (running) {
         const response = await ai.models.generateContent({
@@ -153,7 +153,7 @@ export async function handleWizardTools(message: string) {
 
         if (response.functionCalls && response.functionCalls.length > 0) {
             if (response.candidates && response.candidates[0]?.content) {
-                contents.push(response.candidates[0].content)
+                contents.push(response.candidates[0].content);
             }
             const functionResponseParts = await Promise.all(
                 response.functionCalls.map(async (functionCall) => {
@@ -166,7 +166,11 @@ export async function handleWizardTools(message: string) {
 
                     switch (name) {
                         case "get_transaction":
-                            const dataFind = await findEmbedding(JSON.stringify(args), 0.3, 1);
+                            const dataFind = await findEmbedding(
+                                JSON.stringify(args),
+                                0.3,
+                                1,
+                            );
 
                             resultData = dataFind[0] || {};
                             break;
@@ -174,7 +178,9 @@ export async function handleWizardTools(message: string) {
                             const transaction = transactionSchema.parse(args);
 
                             if (transaction.amount <= 0) {
-                                throw new Error("Cannot create transaction with invalid amount");
+                                throw new Error(
+                                    "Cannot create transaction with invalid amount",
+                                );
                             }
 
                             await createTransaction(transaction);
@@ -186,7 +192,9 @@ export async function handleWizardTools(message: string) {
                             const newData = transactionSchema.parse(args);
 
                             if (newData.amount <= 0) {
-                                throw new Error("Cannot update transaction with invalid amount");
+                                throw new Error(
+                                    "Cannot update transaction with invalid amount",
+                                );
                             }
 
                             await updateTransaction(`${args.id}`, newData);
@@ -199,19 +207,19 @@ export async function handleWizardTools(message: string) {
                         functionResponse: {
                             name,
                             response: { result: resultData },
-                            id
-                        }
-                    }
+                            id,
+                        },
+                    };
                 }),
             );
 
             contents.push({
                 role: "user",
-                parts: functionResponseParts
-            })
+                parts: functionResponseParts,
+            });
         } else {
-            running = false
-            return response.text
+            running = false;
+            return response.text;
         }
     }
 }
