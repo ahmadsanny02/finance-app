@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import TransactionTable from "./transaction-table";
@@ -35,6 +35,5 @@ export default function Transaction() {
                 <CreateTransactionCard refetch={refetch} />
             </div>
         </div>
-
     );
 }
