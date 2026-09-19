@@ -83,7 +83,7 @@ export async function handleWizardInput(message: string) {
 
     const ai = createAI();
     const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+        model: "gemini-3.5-flash",
         contents,
         config: {
             responseMimeType: "application/json",
@@ -135,7 +135,7 @@ export async function handleWizardTools(message: string) {
 
     while (running) {
         const response = await ai.models.generateContent({
-            model: "gemini-3.6-flash",
+            model: "gemini-3.5-flash",
             contents,
             config: {
                 tools: [
