@@ -41,7 +41,7 @@ export async function getTransactions(params?: {
             count: "exact",
         })
         .order("date", { ascending: false })
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
     if (search) {
         query = query.ilike("description", `%${search}%`);
@@ -72,7 +72,7 @@ async function handleEmbedding(
 
     try {
         embeddingVector = await generateEmbedding(embeddingText);
-    } catch (error) {
+    } catch {
         throw new Error("Failed to generate embedding");
     }
 
