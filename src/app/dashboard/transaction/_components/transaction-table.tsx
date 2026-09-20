@@ -120,7 +120,10 @@ export default function TransactionTable({
                                         <TableCell className="font-medium">
                                             {new Date(transaction.date).toLocaleDateString()}
                                         </TableCell>
-                                        <TableCell>{transaction.description}</TableCell>
+                                        <TableCell>
+                                            {transaction.description.charAt(0).toUpperCase() +
+                                                transaction.description.slice(1)}
+                                        </TableCell>
                                         <TableCell>{transaction.category}</TableCell>
                                         <TableCell
                                             className={cn(
