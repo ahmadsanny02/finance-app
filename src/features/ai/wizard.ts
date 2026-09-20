@@ -155,6 +155,7 @@ export async function handleWizardTools(message: string) {
             if (response.candidates && response.candidates[0]?.content) {
                 contents.push(response.candidates[0].content);
             }
+            
             const functionResponseParts = await Promise.all(
                 response.functionCalls.map(async (functionCall) => {
                     const { name, args, id } = functionCall;
