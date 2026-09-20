@@ -1,13 +1,14 @@
 "use server";
 
 import { Conversation } from "@/app/types/ai";
-import { ENVIRONMENT } from "@/config/environment";
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import {
+    Content,
+    FunctionCall,
+    Part,
+} from "@google/genai";
 import { createAI } from "./instance";
-import z from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { findEmbedding, generateEmbedding } from "./embedding";
-import { Transaction } from "@/app/types/transaction";
+import { findEmbedding, } from "./embedding";
+import { getTransactionDeclaration } from "./functionTransaction"; 
 
 export async function handleChat(
     conversation: Conversation[],
@@ -50,11 +51,11 @@ export async function handleChat(
     return result;
 }
 
-async function generalChat(conversation: Conversation[], isThinking?: boolean) {
+async function generalChat(conversation: Content[], isThinking?: boolean) {
     const ai = createAI();
 
     const response = await ai.models.generateContentStream({
-        model: "gemini-3.6-flash",
+        model: "gemini-3.5-flash",
         contents: [...conversation],
         config: {
             thinkingConfig: {
@@ -128,108 +129,166 @@ async function generalChat(conversation: Conversation[], isThinking?: boolean) {
     return response;
 }
 
-async function personalizedChat(
-    query: string,
-    historyChat?: Conversation[],
-    isThinking?: boolean,
-) {
-    const ai = createAI();
-
-    const data = await findEmbedding(query);
-
-    let contextData = "";
-
-    if (!data || data.length === 0) {
-        contextData =
-            "No transaction found that are similar or relevant to the question";
-    } else {
-        contextData = data
-            .map((transaction: Transaction) => {
-                return JSON.stringify(transaction);
-            })
-            .join("\n");
-    }
-
-    const prompt = `
-    <role>
-        You are an AI Financial Analyst. You are helping the user analyze 
-        their financial data using the RAG (Retrieval-Augmented Generation) technique.
-    </role>
-    <input>
-        User Question: "${query}"
-    </input>
-    <context>
-        Relevant Transaction data from the database (Ordered from most relevant):
-        ${contextData}
-    </context>
-    <instruction>
-        - Answer the user question ONLY based on the relevant transaction data above.
-        - If there are calculations (total spending, average, etc), calculate them accurately based on the data.
-        - Provide the answer in a neat, professional, yet easy-to-understand markdown format.
-        - If there is no relevant data at all, state that the data is not availble in the history.
-        - If user question is general and not need a data, response generally.
-    </instruction>
-    <constraints>
-        - Don't answer in table format instead of markdown.
-    </contraints>
-    `;
-    const response = await ai.models.generateContentStream({
-        model: "gemini-3.6-flash",
-        contents: [
-            ...(historyChat ?? []),
-            {
-                role: "user",
-                parts: [{ text: prompt }],
-            },
-        ],
-        config: {
-            thinkingConfig: {
-                includeThoughts: isThinking,
-                thinkingLevel: isThinking ? ThinkingLevel.HIGH : ThinkingLevel.MINIMAL,
-                thinkingBudget: isThinking ? -1 : 0
-            },
-        },
-    });
-
-    return response;
-}
-
 export async function* handleChatStreaming(
-    conversation: Conversation[],
+    conversation: Content[],
     isThinking: boolean,
     mode: "general" | "personal",
 ) {
-    let response;
     if (mode === "general") {
-        response = await generalChat(conversation, isThinking);
-    } else {
-        response = await personalizedChat(
-            conversation[conversation.length - 1].parts[0].text,
-            conversation.slice(0, -1),
-            isThinking,
-        );
-    }
+        const response = await generalChat(conversation, isThinking);
+        if (isThinking) {
+            for await (const chunk of response) {
+                const parts = chunk.candidates?.[0].content?.parts;
 
-    if (isThinking) {
-        for await (const chunk of response) {
-            const parts = chunk.candidates?.[0].content?.parts;
-
-            if (parts) {
-                for (const part of parts) {
-                    if (!part.text) {
-                        continue;
-                    } else if (part.thought) {
-                        yield `[thought]${part.text}`;
-                    } else {
-                        yield part.text;
+                if (parts) {
+                    for (const part of parts) {
+                        if (!part.text) {
+                            continue;
+                        } else if (part.thought) {
+                            yield `[thought]${part.text}`;
+                        } else {
+                            yield part.text;
+                        }
                     }
+                }
+            }
+        } else {
+            for await (const chunk of response) {
+                if (chunk.text) {
+                    yield chunk.text;
                 }
             }
         }
     } else {
-        for await (const chunk of response) {
-            if (chunk.text) {
-                yield chunk.text;
+
+        const query = conversation[conversation.length - 1]?.parts?.[0].text
+        const historyChat = conversation.slice(0, -1)
+
+        const ai = createAI();
+
+        let contents: Content[] = [
+            ...historyChat,
+            {
+                role: "user",
+                parts: [
+                    {
+                        text: `
+                        <role>
+                            You are an AI Financial Analyst. You are helping the user analyze their financial data.
+                        </role>
+                        <input>
+                            User Question: "${query}"
+                        </input>
+                        <instruction>
+                            - Extract the transaction details from the input.
+                            - Answer the user question ONLY based on the relevant transaction data (if there's need data).
+                            - If there are calculations (total spending, average, etc), calculate them accurately based on the data.
+                            - Provide the answer in a neat, professional, yet easy-to-understand markdown format.
+                            - If there is no relevant data at all, state that the data is not availble in the history.
+                            - If user question is general and not need a data, response generally.
+                            - The final response if there  are no more functions being called is as simple as possible.
+                        </instruction>
+                        <context>
+                            Current date : ${new Date().toISOString()}
+                        </context>
+                        <constraints>
+                            - Answer in relaxed, polite but proffesional in Indonesian.
+                            - Don't make assumptions about data from users if they don't mention it.
+                            If there are question outside the context related to finance, you must only answer questions related to finance.
+                            - Don't answer in table format instead of markdown.
+                        </contraints>
+                        `,
+                    },
+                ],
+            },
+        ];
+
+        let running = true;
+        let iterate = 1
+
+        while (running) {
+            iterate++
+            const response = await ai.models.generateContentStream({
+                model: "gemini-3.5-flash",
+                contents: contents,
+                config: {
+                    tools: [{ functionDeclarations: [getTransactionDeclaration] }],
+                    thinkingConfig: {
+                        includeThoughts: isThinking,
+                        // thinkingLevel: isThinking
+                        //     ? ThinkingLevel.HIGH
+                        //     : ThinkingLevel.MINIMAL,
+                        // thinkingBudget: isThinking ? -1 : 0,
+                    },
+                },
+            });
+
+            const modelParts: Part[] = [];
+            const functionCalls: FunctionCall[] = [];
+
+            for await (const chunk of response) {
+                const parts = chunk.candidates?.[0].content?.parts || [];
+
+                if (parts) {
+                    for (const part of parts) {
+                        modelParts.push(part)
+                        if (part.functionCall) {
+                            functionCalls.push(part.functionCall);
+                        } else if (part.text) {
+                            if (part.thought) {
+                                if (isThinking) yield `[thought]${part.text}`;
+                            } else {
+                                yield part.text;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (functionCalls.length > 0) {
+                contents.push({
+                    role: "model", parts: modelParts
+                })
+
+                const functionResponseParts = await Promise.all(
+                    functionCalls.map(async (functionCall) => {
+                        const { name, args, id } = functionCall;
+                        if (!args) {
+                            throw new Error("No arguments provided for action.");
+                        }
+
+                        let resultData = {};
+
+                        switch (name) {
+                            case "get_transaction":
+                                const dataFind = await findEmbedding(
+                                    JSON.stringify(args),
+                                    0.3,
+                                    100,
+                                );
+
+                                resultData = dataFind || [];
+                                break;
+                            default:
+                                throw new Error("Unknown function call");
+                        }
+
+                        return {
+                            functionResponse: {
+                                name,
+                                response: { result: resultData },
+                                id,
+                            },
+                        };
+                    }),
+                );
+
+                contents.push({
+                    role: "user",
+                    parts: functionResponseParts
+                })
+            } else {
+                running = false
             }
         }
     }
