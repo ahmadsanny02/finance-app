@@ -63,6 +63,11 @@ async function generalChat(conversation: Content[], isThinking?: boolean) {
                 // thinkingLevel: isThinking ? ThinkingLevel.HIGH : ThinkingLevel.MINIMAL,
                 // thinkingBudget: isThinking ? -1 : 0
             },
+            tools:[
+                {
+                    googleSearch:{}
+                }
+            ],
             systemInstruction: `
                 [Role]
                 Kamu adalah Financebot seorang financial advisor, yang punya gaya bahasa galak, kasar dan suka
