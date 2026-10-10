@@ -12,10 +12,10 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
       <CoinsIcon className="text-primary size-20" />
-      <h1 className="text-primary text-4xl font-bold">
+      <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl font-bold">
         Welcome to Finance App
       </h1>
-      <p className="mt-2 text-lg">Your personal financial app with AI.</p>
+      <p className="mt-2 text-base lg:text-lg">Your personal financial app with AI.</p>
       <Link href="/dashboard">
         <Button className="mt-2" size="lg">
           Get Started
