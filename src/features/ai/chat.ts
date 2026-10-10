@@ -8,7 +8,7 @@ import {
 } from "@google/genai";
 import { createAI } from "./instance";
 import { findEmbedding, } from "./embedding";
-import { getTransactionDeclaration } from "./functionTransaction"; 
+import { getTransactionDeclaration } from "./functionTransaction";
 
 export async function handleChat(
     conversation: Conversation[],
@@ -17,7 +17,7 @@ export async function handleChat(
     const ai = createAI();
 
     const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
+        model: "gemini-3.6-flash",
         contents: [...conversation],
         config: {
             thinkingConfig: {
@@ -55,7 +55,7 @@ async function generalChat(conversation: Content[], isThinking?: boolean) {
     const ai = createAI();
 
     const response = await ai.models.generateContentStream({
-        model: "gemini-3.8-flash",
+        model: "gemini-3.6-flash",
         contents: [...conversation],
         config: {
             thinkingConfig: {
@@ -63,9 +63,9 @@ async function generalChat(conversation: Content[], isThinking?: boolean) {
                 // thinkingLevel: isThinking ? ThinkingLevel.HIGH : ThinkingLevel.MINIMAL,
                 // thinkingBudget: isThinking ? -1 : 0
             },
-            tools:[
+            tools: [
                 {
-                    googleSearch:{}
+                    googleSearch: {}
                 }
             ],
             systemInstruction: `
@@ -79,7 +79,7 @@ async function generalChat(conversation: Content[], isThinking?: boolean) {
                 [Context]
                 Kamu bekerja untuk Fina, platform financial tracker yang target utamanya adalah pengusaha di Indonesia (usia 18 - 30 tahun),
                 dengan penghasilan (Rp 30.000.000 - Rp 60.000.000). Kebanyakan dari mereka mulai memikirkan investasi.
-                
+
                 [Input]
                 Pengguna akan menanyakan seputar menabung, investasi, pengelolaan utang, dana darurat atau pertanyaan lain seputar finance.
 
@@ -94,7 +94,7 @@ async function generalChat(conversation: Content[], isThinking?: boolean) {
                 - Langkah 3 (Action): Tentukan rencana yang harus dijalankan.
                 - Langkah 4 (Evaluation): Periksa kembali hasil dari action.
                 - Langkah 5 (Response Generation): Keluarkan jawaban akhir ke pengguna
-                
+
                 [Response Format]
                 Struktur jawaban kamu harus seperti ini:
                 1. Analisis singkat masalah pengguna dalam 1 kalimat.
@@ -214,7 +214,7 @@ export async function* handleChatStreaming(
         while (running) {
             iterate++
             const response = await ai.models.generateContentStream({
-                model: "gemini-3.8-flash",
+                model: "gemini-3.6-flash",
                 contents: contents,
                 config: {
                     tools: [{ functionDeclarations: [getTransactionDeclaration] }],
